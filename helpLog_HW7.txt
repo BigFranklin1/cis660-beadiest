@@ -1,0 +1,1 @@
+8:25 AM 11/2/2021: while building skeleton class, met problem with "non-constant lvalue reference; cannot bind to a value of unrelated type 'unique_ptr<Joint *, default_delete<Joint *>>'", found solution from: https://stackoverflow.com/questions/18565167/non-const-lvalue-references.

@@ -1,0 +1,7 @@
+10/9 7:00 AM: Look up the usage of dynamic_cast function to convert QListWidgetItem to desired type from: https://en.cppreference.com/w/cpp/language/dynamic_cast
+
+10/9 7:30AM: Look up vector::at function from: https://www.cplusplus.com/reference/vector/vector/at/
+
+10/10 2:00 AM: debug the error "use of deleted function unique_ptr" by referring: https://stackoverflow.com/questions/21943569/deleted-function-unique-ptr
+
+
