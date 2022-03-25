@@ -47,6 +47,8 @@ public:
                        std::map<HalfEdge*, Vertex*> *midpoint_map,
                        std::vector<uPtr<HalfEdge>> *newHalfEdges,
                        std::vector<uPtr<Face>> *newFaces);
+
+    void postprocess();
     void create() override;
     GLenum drawMode() override;
 

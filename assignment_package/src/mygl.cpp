@@ -417,6 +417,7 @@ void MyGL::slot_loadOBJ(){
         m_mesh.destroy();
         m_mesh.create();
 
+
         emit sig_sendFaceData(&m_mesh);
         emit sig_sendVertexData(&m_mesh);
         emit sig_sendHalfEdgeData(&m_mesh);

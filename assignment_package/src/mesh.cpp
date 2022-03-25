@@ -17,6 +17,8 @@ int getEdgeNum(Face* face) {
     return num;
 }
 void Mesh::create(){
+    postprocess();
+
     std::vector<glm::vec4> pos;
     std::vector<glm::vec4> nor;
     std::vector<glm::vec4> color;
@@ -203,7 +205,6 @@ void Mesh::initCubeData() {
     setHalfEdgeSymPairs(10, 21);
     setHalfEdgeSymPairs(12, 17);
     setHalfEdgeSymPairs(14, 23);
-
 }
 
 void Mesh::splitEdge(HalfEdge* he){
@@ -575,6 +576,24 @@ void Mesh::quadrangulate(std::vector<HalfEdge*> *edge_split,
     }
 }
 
+void Mesh::postprocess() {
+
+    for (const std::unique_ptr<HalfEdge> &he : halfEdges) {
+        // construct adjacent edge for vertex
+        he->vertex->adjacentEdges.insert(he.get());
+
+        // bound vertices for edge
+        he->vertices.insert(he->vertex);
+        he->vertices.insert(he->symmHE->vertex);
+
+        // set vertices and edges for face
+        he->face->vertices.insert(he->vertex);
+        he->face->edges.insert(he.get());
+
+    }
+
+
+}
 
 
 

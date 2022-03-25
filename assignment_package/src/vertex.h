@@ -25,6 +25,9 @@ public:
     // influences <id, strength>
     std::vector<std::pair<int, float>> weights;
 
+    // each vertex stores pointers to its adjacent edges
+    std::unordered_set<HalfEdge*> adjacentEdges;
+
     Vertex();
     Vertex(const Vertex &vertex);
 
