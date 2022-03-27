@@ -315,7 +315,16 @@ void MyGL::slot_subdivision(){
     m_mesh.create();
     update();
 }
+void MyGL::slot_toHexa(){
 
+    m_mesh.triToHexa();
+    emit sig_sendVertexData(&m_mesh);
+    emit sig_sendHalfEdgeData(&m_mesh);
+    emit sig_sendFaceData(&m_mesh);
+    m_mesh.destroy();
+    m_mesh.create();
+    update();
+}
 
 void MyGL::slot_loadOBJ(){
     QString fileName = QFileDialog::getOpenFileName(this,
