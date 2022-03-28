@@ -54,6 +54,7 @@ public:
 
 
     void hexTest(std::map<Face*, Vertex*> *centroid_map, std::vector<uPtr<HalfEdge>> *newHalfEdges, std::vector<uPtr<Face>> *newFaces);
+    void hexTest2(std::map<Face *, Vertex *> *centroid_map, std::vector<uPtr<HalfEdge>> *newHalfEdges, std::vector<uPtr<Face>> *newFaces);
 
 
     void create() override;
