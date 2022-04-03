@@ -17,7 +17,7 @@ int getEdgeNum(Face* face) {
     return num;
 }
 void Mesh::create(){
-    postprocess();
+    //postprocess();
 
     std::vector<glm::vec4> pos;
     std::vector<glm::vec4> nor;
@@ -48,11 +48,10 @@ void Mesh::create(){
            }
 
             glm::vec4 normal = glm::vec4(glm::normalize(glm::cross(v1, v2)), 0);
-
             pos.push_back(glm::vec4(currHE->vertex->pos, 1));
             nor.push_back(normal);
-            color.push_back(glm::vec4(f->color, 1));
-
+           // color.push_back(glm::vec4(f->color, 1));
+            color.push_back(glm::vec4(1.f));
             Vertex* vertex = currHE      ->vertex;
             if (!vertex->weights.empty()) {
                 jointID.push_back(glm::ivec2(vertex->weights[0].first,
@@ -580,11 +579,11 @@ void Mesh::postprocess() {
 
     for (const std::unique_ptr<HalfEdge> &he : halfEdges) {
         // construct adjacent edge for vertex
-        he->vertex->adjacentEdges.insert(he.get());
+        he->vertex->adjacentEdges.insert(he->symmHE);
 
         // bound vertices for edge
-        he->vertices.insert(he->vertex);
-        he->vertices.insert(he->symmHE->vertex);
+        he->vertices.push_back(he->vertex);
+        he->vertices.push_back(he->symmHE->vertex);
 
         // set vertices and edges for face
         he->face->vertices.insert(he->vertex);
@@ -592,10 +591,61 @@ void Mesh::postprocess() {
 
     }
 
+    // copy skin vertices
+    skinVertices.clear();
+    for (const std::unique_ptr<Vertex> &v: vertices) {
+        uPtr<Vertex> sv = mkU<Vertex>();
+        sv->pos = v->pos;
+        sv->halfEdge = v->halfEdge;
+        //sv->id = v->id;
+        sv->name = "skin" + v->name;
+        sv->adjacentEdges = v->adjacentEdges;
+        skinVertices.push_back(std::move(sv));
+    }
 
+    for (uPtr<Face> &f : faces) {
+        HalfEdge *he = f->halfEdge;
+        glm::vec3 v1 = he->nextHE->vertex->pos - he->vertex->pos;
+        glm::vec3 v2 = he->nextHE->nextHE->vertex->pos - he->nextHE->vertex->pos;
+        f->normal = glm::normalize(glm::cross(v1, v2));
+    }
+
+    skinAlgorithm();
 }
 
 
+void Mesh::skinAlgorithm() {
+    // reposition skin vertices
+    for (const std::unique_ptr<Vertex> &v: skinVertices) {
+        glm::vec3 centroid(0.f);
+        int count = 0;
+        float dist = FLT_MAX;
+        glm:: vec3 normal(0.f);
+        for (const HalfEdge *he: v->adjacentEdges) {
+            centroid += he->vertex->pos;
+            normal += he->face->normal;
+            dist = fmin(dist, glm::length(v->pos - he->vertex->pos));
+            count++;
+        }
+        centroid /= count;
+        normal /= count;
+        normal = glm::normalize(normal);
+        float alpha = 0.4f;
+        float beta = 0.4f;
+        float gamma = 1.f - alpha - beta;
+        //std::cout << "before: " << glm::to_string(v->pos) << "\n";
+        std::cout << glm::to_string(dist) << "\n";
+        dist = fmin(dist, 0.1f);
+        v->pos = alpha * v->pos + beta * centroid + gamma * dist * normal;
+        //std::cout << "after: " << glm::to_string(v->pos) << "\n";
+
+    }
+
+    // change original vertex's position
+    for (unsigned int i = 0; i < vertices.size(); i++) {
+        vertices[i]->pos = skinVertices[i]->pos;
+    }
+}
 
 
 

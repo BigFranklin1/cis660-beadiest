@@ -18,6 +18,7 @@ public:
     std::vector<uPtr<Face>> faces;
     std::vector<uPtr<Vertex>> vertices;
     std::vector<uPtr<HalfEdge>> halfEdges;
+    std::vector<uPtr<Vertex>> skinVertices;
 
     void buildCubeMesh();
     void initCubeData();
@@ -49,6 +50,7 @@ public:
                        std::vector<uPtr<Face>> *newFaces);
 
     void postprocess();
+    void skinAlgorithm();
     void create() override;
     GLenum drawMode() override;
 

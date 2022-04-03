@@ -17,6 +17,8 @@ public:
     // A vec3 to represent this Face's color as an RGB value
     glm::vec3 color;
 
+    glm::vec3 normal;
+
     // A unique integer to identify the Face in menus and while debugging
     int id;
 

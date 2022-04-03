@@ -28,7 +28,7 @@ public:
     Vertex* vertex;
 
     // each edge stores pointers to the two vertices that define it and to at most two adjacent faces
-    std::unordered_set<Vertex *> vertices;
+    std::vector<Vertex *> vertices;
 
     // A unique integer to identify the HalfEdge in menus and while debugging
     int id;
