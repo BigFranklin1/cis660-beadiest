@@ -27,6 +27,7 @@ public:
     void triangulateFace(Face *face);
     void splitEdge(HalfEdge *he_1);
     void subdivision();
+    void triToHexa();
     void computeCentroids(std::map<Face*, Vertex*> *centroid_map,
                           std::vector<uPtr<Vertex>> *newVertices);
     void computeMidpoints(std::vector<HalfEdge*> *edge_split,
@@ -49,8 +50,16 @@ public:
                        std::vector<uPtr<HalfEdge>> *newHalfEdges,
                        std::vector<uPtr<Face>> *newFaces);
 
+    void hex(std::map<Face*, Vertex*> *centroid_map, std::vector<uPtr<HalfEdge>> *newHalfEdges, std::vector<uPtr<Face>> *newFaces, std::vector<uPtr<Vertex>> *newVertices);
+    std::vector<uPtr<Face>> hexFaces(std::vector<HalfEdge*> *temp_he, Face *f);
+
+
+    void hexTest(std::map<Face*, Vertex*> *centroid_map, std::vector<uPtr<HalfEdge>> *newHalfEdges, std::vector<uPtr<Face>> *newFaces);
+    void hexTest2(std::map<Face *, Vertex *> *centroid_map, std::vector<uPtr<HalfEdge>> *newHalfEdges, std::vector<uPtr<Face>> *newFaces);
+
     void postprocess();
     void skinAlgorithm();
+
     void create() override;
     GLenum drawMode() override;
 

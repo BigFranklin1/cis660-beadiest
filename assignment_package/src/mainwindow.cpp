@@ -51,7 +51,8 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->mygl, SLOT(slot_triangulate()));
     connect(ui->subDivButton, SIGNAL(clicked(bool)),
             ui->mygl, SLOT(slot_subdivision()));
-
+    connect(ui->tri2hexaButton, SIGNAL(clicked(bool)),
+            ui->mygl, SLOT(slot_toHexa()));
     // load obj file
     connect(ui->loadOBJButton, SIGNAL(clicked(bool)),
             ui->mygl, SLOT(slot_loadOBJ()));

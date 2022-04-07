@@ -73,6 +73,9 @@ public slots:
     void slot_triangulate();
     void slot_subdivision();
 
+    // convert triangle to hexa
+    void slot_toHexa();
+
     void slot_loadOBJ();
     void slot_loadJSON();
     Joint* loadJSONHelper(QJsonObject parent);
