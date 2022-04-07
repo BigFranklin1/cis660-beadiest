@@ -18,6 +18,7 @@ public:
     std::vector<uPtr<Face>> faces;
     std::vector<uPtr<Vertex>> vertices;
     std::vector<uPtr<HalfEdge>> halfEdges;
+    std::vector<uPtr<Vertex>> skinVertices;
 
     void buildCubeMesh();
     void initCubeData();
@@ -56,6 +57,8 @@ public:
     void hexTest(std::map<Face*, Vertex*> *centroid_map, std::vector<uPtr<HalfEdge>> *newHalfEdges, std::vector<uPtr<Face>> *newFaces);
     void hexTest2(std::map<Face *, Vertex *> *centroid_map, std::vector<uPtr<HalfEdge>> *newHalfEdges, std::vector<uPtr<Face>> *newFaces);
 
+    void postprocess();
+    void skinAlgorithm();
 
     void create() override;
     GLenum drawMode() override;

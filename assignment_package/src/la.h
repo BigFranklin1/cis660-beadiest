@@ -14,6 +14,7 @@
 
 #include <QMatrix4x4>
 #include<QVector4D>
+#include<unordered_set>
 
 /// 460 linear algebra namespace. Functions used to convert glm data types to Qt data types. You won't need to use these
 namespace la {

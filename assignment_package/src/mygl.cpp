@@ -307,10 +307,11 @@ void MyGL::slot_triangulate(){
 }
 void MyGL::slot_subdivision(){
 
-    m_mesh.subdivision();
-    emit sig_sendVertexData(&m_mesh);
-    emit sig_sendHalfEdgeData(&m_mesh);
-    emit sig_sendFaceData(&m_mesh);
+    //m_mesh.subdivision();
+    m_mesh.postprocess();
+//    emit sig_sendVertexData(&m_mesh);
+//    emit sig_sendHalfEdgeData(&m_mesh);
+//    emit sig_sendFaceData(&m_mesh);
     m_mesh.destroy();
     m_mesh.create();
     update();
@@ -425,6 +426,7 @@ void MyGL::slot_loadOBJ(){
         file.close();
         m_mesh.destroy();
         m_mesh.create();
+
 
         emit sig_sendFaceData(&m_mesh);
         emit sig_sendVertexData(&m_mesh);
