@@ -1,0 +1,8 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: 中间目录(x64\Debug\)包含从另一个项目(LSystemMaya.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
+  PluginMain.cpp
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(1216,5): warning MSB8012: TargetPath(C:\Users\14398\Documents\Github Desktop\cis660-beadiest\cis660-beadiest\MayaPlugin\MayaPluginHw2_VS2017\x64\Debug\BeadiestMaya.dll) 与 Linker 的 OutputFile 属性值(C:\Users\14398\Documents\Github Desktop\cis660-beadiest\cis660-beadiest\MayaPlugin\MayaPluginHw2_VS2017\LSystemd.mll)不匹配。这可能导致项目生成不正确。若要更正此问题，请确保 $(OutDir)、$(TargetName) 和 $(TargetExt) 属性值与 %(Link.OutputFile) 中指定的值匹配。
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(1217,5): warning MSB8012: TargetExt(.dll) 与 Linker 的 OutputFile 属性值(.mll)不匹配。这可能导致项目生成不正确。若要更正此问题，请确保 $(OutDir)、$(TargetName) 和 $(TargetExt) 属性值与 %(Link.OutputFile) 中指定的值匹配。
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(1218,5): warning MSB8012: TargetName(BeadiestMaya) 与 Linker 的 OutputFile 属性值(LSystemd)不匹配。这可能导致项目生成不正确。若要更正此问题，请确保 $(OutDir)、$(TargetName) 和 $(TargetExt) 属性值与 %(Link.OutputFile) 中指定的值匹配。
+  LINK : 没有找到 .\LSystemd.mll 或上一个增量链接没有生成它；正在执行完全链接
+    正在创建库 .\Debug/MyPlugin.lib 和对象 .\Debug/MyPlugin.exp
+  MyPlugin.vcxproj -> C:\Users\14398\Documents\Github Desktop\cis660-beadiest\cis660-beadiest\MayaPlugin\MayaPluginHw2_VS2017\x64\Debug\BeadiestMaya.dll
