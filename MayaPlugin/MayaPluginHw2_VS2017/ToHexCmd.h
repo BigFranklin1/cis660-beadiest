@@ -10,6 +10,8 @@
 #include <maya/MItMeshPolygon.h>
 #include <maya/MSelectionList.h>
 #include <maya/MDagPath.h>
+#include <maya/MItMeshVertex.h>
+
 
 
 #include <list>

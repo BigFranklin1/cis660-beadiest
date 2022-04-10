@@ -67,7 +67,11 @@ MStatus ToHexCmd::doIt(const MArgList& args)
 
 MStatus ToHexCmd::convertToHex() {
 
+	MObject multiVertexComponent, singleVertexComponent;
 	MSelectionList sList;
+	MDagPath meshDagPath;
+
+	// 
 	MGlobal::getActiveSelectionList(sList);
 	if (sList.length() == 0)
 	{
@@ -76,8 +80,20 @@ MStatus ToHexCmd::convertToHex() {
 	}
 
 	// RETRIEVE THE FIRST ITEM FROM THE SELECTION LIST:
-	MDagPath meshDagPath;
 	sList.getDagPath(0, meshDagPath);
+
+	// STORE THE MESH NAME
+	MString meshName = meshDagPath.fullPathName();
+	MGlobal::displayInfo("Selected Mesh Name: " + meshName);
+
+
+
+	for (MItMeshVertex vertexIter(meshDagPath, multiVertexComponent); !vertexIter.isDone(); vertexIter.next())
+	{
+		// FOR STORING THE FACES CONNECTED TO EACH VERTEX:
+		MIntArray connectedFacesIndices;
+		vertexIter.getConnectedFaces(connectedFacesIndices);
+	}
 
 	return MS::kSuccess;
 
