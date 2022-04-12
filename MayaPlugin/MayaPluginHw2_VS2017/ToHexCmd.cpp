@@ -52,9 +52,6 @@ ToHexCmd::~ToHexCmd()
 
 MStatus ToHexCmd::doIt(const MArgList& args)
 {
-
-	//MStatus status = createLSystem(20, 2, 3, "F\nF->F[+F]F[-F]F");
-	
 	MStatus status = convertToHex();
 	MGlobal::displayInfo("ToHexCmd\n");
 	setResult("ToHexCmd was executed\n");
@@ -66,7 +63,7 @@ MStatus ToHexCmd::doIt(const MArgList& args)
 }
 
 MStatus ToHexCmd::convertToHex() {
-
+	MStatus status;
 	MObject multiVertexComponent, singleVertexComponent;
 	MSelectionList sList;
 	MDagPath meshDagPath;
@@ -85,14 +82,68 @@ MStatus ToHexCmd::convertToHex() {
 	// STORE THE MESH NAME
 	MString meshName = meshDagPath.fullPathName();
 	MGlobal::displayInfo("Selected Mesh Name: " + meshName);
+	MGlobal::displayInfo("convert to hex");
 
-
-
-	for (MItMeshVertex vertexIter(meshDagPath, multiVertexComponent); !vertexIter.isDone(); vertexIter.next())
+	// create vertices list
+	MItMeshVertex vertexIter(meshDagPath, multiVertexComponent);
+	int id = 0;
+	std::vector<Vertex> vertices;//(vertexIter.count(&status));
+	for (; !vertexIter.isDone(); vertexIter.next())
 	{
-		// FOR STORING THE FACES CONNECTED TO EACH VERTEX:
-		MIntArray connectedFacesIndices;
-		vertexIter.getConnectedFaces(connectedFacesIndices);
+		Vertex v;
+		v.id = id;//vertexIter.index(&status);
+		v.position = vertexIter.position(MSpace::kWorld, &status);
+		vertexIter.getNormal(v.normal, MSpace::kWorld);
+		MIntArray adjEdges;
+		vertexIter.getConnectedEdges(adjEdges);
+		MPoint centroid;
+		for (int i = 0; i < adjEdges.length(); i++) {
+			v.adjacentEdges.push_back(adjEdges[i]);
+		}
+		vertices.push_back(v);
+		id++;
+	}
+
+	// create edges
+	MItMeshEdge edgeIter(meshDagPath, multiVertexComponent);
+	std::vector<Edge> edges;// (edgeIter.count(&status));
+	id = 0;
+	for (; !edgeIter.isDone(); edgeIter.next())
+	{
+		Edge e;
+		e.id = id;// vertexIter.index(&status);
+		e.v1Id = edgeIter.index(0, &status);
+		e.v2Id = edgeIter.index(1, &status);
+		edges.push_back(e);
+		id++;
+	}
+
+	// modify vertices
+	vertexIter.reset();
+	id = 0;
+	for (; !vertexIter.isDone(); vertexIter.next())
+	{
+		//int id = vertexIter.index(&status);
+		MPoint ori = vertices[id].position;
+		MPoint centroid;
+		double distance = INT_MAX;
+		for (int id : vertices[id].adjacentEdges) {
+			int neighborId = id == edges[id].v1Id ? edges[id].v2Id : edges[id].v1Id;
+			MPoint neighborPos = vertices[neighborId].position;
+			centroid += neighborPos;
+			double dist = ori.distanceTo(neighborPos);
+			if (distance > dist) {
+				distance = dist;
+			}
+		}
+		centroid = centroid / (unsigned int) vertices[id].adjacentEdges.size();
+		double alpha = 0.4;
+		double beta = 0.6;
+		double gamma = 1 - alpha - beta;
+		distance = distance > 1 ? 1 : distance;
+		MPoint newPos = alpha * ori + beta * centroid + gamma * -vertices[id].normal * distance;
+		vertexIter.setPosition(newPos, MSpace::kWorld);
+		id++;
 	}
 
 	return MS::kSuccess;

@@ -27,6 +27,8 @@
     <ClCompile Include="ToHexCmd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshBeautification.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cylinder.h">
@@ -47,5 +49,7 @@
     <ClInclude Include="ToHexCmd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshBeautification.h" />
   </ItemGroup>
 </Project>

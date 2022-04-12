@@ -11,7 +11,8 @@
 #include <maya/MSelectionList.h>
 #include <maya/MDagPath.h>
 #include <maya/MItMeshVertex.h>
-
+#include <maya/MItMeshEdge.h>
+#include <Mesh.h>
 
 
 #include <list>
