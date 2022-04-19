@@ -13,6 +13,9 @@
 #include <maya/MItMeshVertex.h>
 #include <maya/MItMeshEdge.h>
 #include <Mesh.h>
+#include <maya/MFloatPointArray.h>
+#include <string.h>
+#include <maya/MFnMesh.h>
 
 
 #include <list>

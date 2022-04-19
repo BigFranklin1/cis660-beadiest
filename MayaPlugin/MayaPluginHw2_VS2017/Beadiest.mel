@@ -2,7 +2,12 @@
 global proc meshBeautification() {
     beautification;
 }
+global proc convert2Hex() {
+    toHex;
+}
+
 
 global string $gMainWindow;
 menu -label "Beadiest" -parent $gMainWindow -tearOff on; 
 menuItem -label "Mesh Beautification" -command ("meshBeautification");
+menuItem -label "To Hex" -command ("convert2Hex");

@@ -25,3 +25,12 @@ public:
 	int v2Id;
 };
 
+class Face {
+public:
+	Face() :id(-1) {};
+	~Face() {};
+	int id;
+	std::vector<int> edges;
+	std::vector<int> vertices;
+	MPoint centroid;
+};

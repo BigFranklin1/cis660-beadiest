@@ -118,33 +118,158 @@ MStatus ToHexCmd::convertToHex() {
 		id++;
 	}
 
-	// modify vertices
-	vertexIter.reset();
+	// new points 
+	MFloatPointArray centroidArray;
+
+	// create faces
+	MItMeshPolygon faceIter(meshDagPath, multiVertexComponent);
+	std::vector<Face> faces;// (faceIter.count(&status));
 	id = 0;
-	for (; !vertexIter.isDone(); vertexIter.next())
+	for (; !faceIter.isDone(); faceIter.next())
 	{
-		//int id = vertexIter.index(&status);
-		MPoint ori = vertices[id].position;
-		MPoint centroid;
-		double distance = INT_MAX;
-		for (int id : vertices[id].adjacentEdges) {
-			int neighborId = id == edges[id].v1Id ? edges[id].v2Id : edges[id].v1Id;
-			MPoint neighborPos = vertices[neighborId].position;
-			centroid += neighborPos;
-			double dist = ori.distanceTo(neighborPos);
-			if (distance > dist) {
-				distance = dist;
-			}
+		Face f;
+		f.id = id;// vertexIter.index(&status);
+		
+		MIntArray adjEdges;
+		faceIter.getConnectedEdges(adjEdges);
+		for (int i = 0; i < adjEdges.length(); i++) {
+			f.edges.push_back(adjEdges[i]);
 		}
-		centroid = centroid / (unsigned int) vertices[id].adjacentEdges.size();
-		double alpha = 0.4;
-		double beta = 0.6;
-		double gamma = 1 - alpha - beta;
-		distance = distance > 1 ? 1 : distance;
-		MPoint newPos = alpha * ori + beta * centroid + gamma * -vertices[id].normal * distance;
-		vertexIter.setPosition(newPos, MSpace::kWorld);
+
+		MIntArray adjVertices;
+		faceIter.getConnectedVertices(adjVertices);
+		for (int i = 0; i < adjVertices.length(); i++) {
+			f.vertices.push_back(adjVertices[i]);
+			f.centroid += vertices[adjVertices[i]].position;
+		}
+
+		f.centroid.x /= adjVertices.length();
+		f.centroid.y /= adjVertices.length();
+		f.centroid.z /= adjVertices.length();
+		f.centroid.w /= adjVertices.length();
+		MString str;
+		str += (double)f.centroid.x;
+		str += ",";
+		str += (double)f.centroid.y;
+		str += ",";
+		str += (double)f.centroid.z;
+
+
+
+		displayInfo(str);
+		faces.push_back(f);
 		id++;
 	}
+	// reset new polygon
+	//MFnMesh newMesh();
+
+	int numOfNewV = faces.size();
+	const int numOfNewF = vertices.size();
+
+	MFloatPointArray newPoints;
+	
+	int* face_counts = new int[numOfNewV];
+
+	//std::vector<int> face_counts;
+	int numOfFaceConnects = 0;
+
+	int i = 0;
+	for (Face f : faces) {
+		newPoints.append(f.centroid);
+		face_counts[i] = f.edges.size();
+		numOfFaceConnects += face_counts[i];
+		i++;
+	}
+	int* face_connects = new int[numOfFaceConnects];
+	
+	// assign face connected vertices
+	int index = 0;
+	for (; !faceIter.isDone(); faceIter.next()){
+		MIntArray adjVertices;
+		faceIter.getConnectedVertices(adjVertices);
+		for (int v: adjVertices) {
+			face_connects[index] = v;
+			//vIndex++;
+			index++;
+		}
+	}
+
+
+
+	
+	//// new points generated
+	//newPoints.append(1,1,1);
+
+	//int face_connects[24] = { 0, 1, 2, 3,
+	//						4, 5, 6, 7,
+	//						3, 2, 6, 5,
+	//						0, 3, 5, 4,
+	//						0, 4, 7, 1,
+	//						1, 7, 6, 2 };
+
+	//newMesh.create(numOfNewV, numOfNewF, vertices, face_connects, );
+
+	//newMesh.create(points.length(), faceCounts.length(),
+	//	points, faceCounts, faceConnects, outData, &stat);
+
+
+
+	// ----------TEST: create a single cube-------------
+	const int numFaces = 6;
+	int fc[numFaces] = { 4, 4, 4, 4, 4, 4};
+	MIntArray faceCounts(fc, numFaces);
+	// Set up and array to assign vertices from points to each face
+	//
+	const int numFaceConnects = 36;
+	MObject outData ;
+
+	MFloatPointArray points;
+	float cubeSize = 1;
+	points.append(-cubeSize, -cubeSize, -cubeSize);
+	points.append(cubeSize, -cubeSize, -cubeSize);
+	points.append(cubeSize, -cubeSize, cubeSize);
+	points.append(-cubeSize, -cubeSize, cubeSize);
+	points.append(-cubeSize, cubeSize, -cubeSize);
+	points.append(-cubeSize, cubeSize, cubeSize);
+	points.append(cubeSize, cubeSize, cubeSize);
+	points.append(cubeSize, cubeSize, -cubeSize);
+
+	int fconnects[numFaceConnects] = { 0, 1, 2, 3, 4, 5, 6, 7, 3, 2, 6, 5, 0, 3, 5, 4, 0, 4, 7, 1, 1, 7, 6, 2};
+	MIntArray faceConnects(fconnects, numFaceConnects);
+	MFnMesh meshFS;
+	MObject newMesh;
+	newMesh = meshFS.create(6, faceCounts.length(),
+		points, faceCounts, faceConnects, outData, &status);
+
+	displayInfo("new mesh created");
+
+	// -------------FOR BEAUTIFICATION: modify vertices-------------
+	//vertexIter.reset();
+	//id = 0;
+	//for (; !vertexIter.isDone(); vertexIter.next())
+	//{
+	//	//int id = vertexIter.index(&status);
+	//	MPoint ori = vertices[id].position;
+	//	MPoint centroid;
+	//	double distance = INT_MAX;
+	//	for (int id : vertices[id].adjacentEdges) {
+	//		int neighborId = id == edges[id].v1Id ? edges[id].v2Id : edges[id].v1Id;
+	//		MPoint neighborPos = vertices[neighborId].position;
+	//		centroid += neighborPos;
+	//		double dist = ori.distanceTo(neighborPos);
+	//		if (distance > dist) {
+	//			distance = dist;
+	//		}
+	//	}
+	//	centroid = centroid / (unsigned int) vertices[id].adjacentEdges.size();
+	//	double alpha = 0.4;
+	//	double beta = 0.6;
+	//	double gamma = 1 - alpha - beta;
+	//	distance = distance > 1 ? 1 : distance;
+	//	MPoint newPos = alpha * ori + beta * centroid + gamma * -vertices[id].normal * distance;
+	//	vertexIter.setPosition(newPos, MSpace::kWorld);
+	//	id++;
+	//}
 
 	return MS::kSuccess;
 

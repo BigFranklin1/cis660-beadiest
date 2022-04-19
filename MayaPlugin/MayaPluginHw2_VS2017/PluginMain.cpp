@@ -31,11 +31,18 @@ MStatus initializePlugin(MObject obj)
 	// Register Command
 	status = plugin.registerCommand("beautification", MeshBeautification::creator);
 	if (!status) {
-		status.perror("registerCommand ToHexCmd");
+		status.perror("registerCommand beautification");
 		return status;
 	}
 
 	plugin.setName("beadiest");
+
+	status = plugin.registerCommand("toHex", ToHexCmd::creator);
+	if (!status) {
+		status.perror("registerCommand toHex");
+		return status;
+	}
+
 
 	/*status = plugin.registerNode("LSystemNode", LSystemNode::id, LSystemNode::creator, LSystemNode::initialize);
 	if (!status) {
@@ -58,6 +65,12 @@ MStatus uninitializePlugin(MObject obj)
 	status = plugin.deregisterCommand("beautification");
 	if (!status) {
 		status.perror("deregisterCommand beautification");
+		return status;
+	}
+
+	status = plugin.deregisterCommand("toHex");
+	if (!status) {
+		status.perror("deregisterCommand toHex");
 		return status;
 	}
 
