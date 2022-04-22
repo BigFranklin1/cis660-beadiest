@@ -215,13 +215,18 @@ MStatus ToHexCmd::convertToHex() {
 
 
 	// ----------TEST: create a single cube-------------
+	//MDataHandle outputHandle = data.outputValue(outputMesh, &status);
+
+	MFnMeshData dataCreator;
+	MObject outData = dataCreator.create(&status);
+
 	const int numFaces = 6;
 	int fc[numFaces] = { 4, 4, 4, 4, 4, 4};
 	MIntArray faceCounts(fc, numFaces);
 	// Set up and array to assign vertices from points to each face
 	//
 	const int numFaceConnects = 36;
-	MObject outData ;
+	//MObject outData ;
 
 	MFloatPointArray points;
 	float cubeSize = 1;

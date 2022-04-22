@@ -16,6 +16,8 @@
 #include <maya/MFloatPointArray.h>
 #include <string.h>
 #include <maya/MFnMesh.h>
+#include <maya/MFnMeshData.h>
+#include <maya/MDataHandle.h>
 
 
 #include <list>
@@ -43,6 +45,10 @@ public:
 	MStatus createLSystem(double angle, double stepSize, double iter, MString grammar);
 	MStatus convertToHex();
 	MSyntax newSyntax();
+
+	static MObject  outputMesh;
+	static MObject  inputMesh;
+
 };
 
 

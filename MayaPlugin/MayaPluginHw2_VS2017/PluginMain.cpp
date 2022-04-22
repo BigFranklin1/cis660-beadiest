@@ -20,7 +20,7 @@
 
 #include "MeshBeautification.h"
 #include "ToHexCmd.h"
-#include "LSystemNode.h"
+#include "ToHexNode.h"
 
 
 MStatus initializePlugin(MObject obj)
@@ -35,19 +35,21 @@ MStatus initializePlugin(MObject obj)
 		return status;
 	}
 
-	plugin.setName("beadiest");
 
 	status = plugin.registerCommand("toHex", ToHexCmd::creator);
 	if (!status) {
 		status.perror("registerCommand toHex");
 		return status;
 	}
+	plugin.setName("beadiest");
 
 
-	/*status = plugin.registerNode("LSystemNode", LSystemNode::id, LSystemNode::creator, LSystemNode::initialize);
+	status = plugin.registerNode("ToHexNode", ToHexNode::id, ToHexNode::creator, ToHexNode::initialize);
 	if (!status) {
+		status.perror("registerNode toHexNode");
+
 		CHECK_MSTATUS_AND_RETURN_IT(status);
-	}*/
+	}
 
 	char buffer[2048];
 	std::string s = plugin.loadPath().asChar();
@@ -74,10 +76,10 @@ MStatus uninitializePlugin(MObject obj)
 		return status;
 	}
 
-/*	status = plugin.deregisterNode(LSystemNode::id);
+	status = plugin.deregisterNode(ToHexNode::id);
 	if (!status) {
 		CHECK_MSTATUS_AND_RETURN_IT(status);
-	}*/
+	}
 
 	return status;
 }

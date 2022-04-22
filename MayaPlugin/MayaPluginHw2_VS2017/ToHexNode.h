@@ -3,6 +3,9 @@
 
 #include "cylinder.h"
 #include "LSystem.h"
+#include <string.h>
+
+#include <maya/MPxCommand.h>
 
 #include <maya/MFnPlugin.h>
 #include <maya/MTime.h>
@@ -14,8 +17,14 @@
 #include <maya/MDoubleArray.h>
 #include "cylinder.h"
 #include "LSystem.h"
-
+#include "Mesh.h"
+#include <maya/MItMeshPolygon.h>
+#include <maya/MSelectionList.h>
+#include <maya/MDagPath.h>
+#include <maya/MItMeshVertex.h>
+#include <maya/MItMeshEdge.h>
 #include <maya/MGlobal.h>
+
 #include <maya/MFnPlugin.h>
 #include <maya/MTime.h>
 #include <maya/MFnMesh.h>
@@ -51,12 +60,12 @@
                 return MS::kFailure;    \
         }
 
-class LSystemNode :
+class ToHexNode :
 	public MPxNode
 {
 public:
-	LSystemNode() {};
-	virtual ~LSystemNode() {};
+	ToHexNode() {};
+	virtual ~ToHexNode() {};
 	virtual MStatus compute(const MPlug& plug, MDataBlock& data);
 	static void* creator();
 	static MStatus initialize();
@@ -67,10 +76,10 @@ public:
 	static MObject step_size;
 	static MObject grammarFile;
 	static MObject outputMesh;
-
+	static MObject inputMesh;
 
 protected:
-	MObject createMesh(const MTime& time, const float& angle, const float &step, const MString& grammar, MObject& outData, MStatus& stat);
+	MObject createMesh(MObject& inMesh, const MTime& time, const float& angle, const float &step, const MString& grammar, MObject& outData, MStatus& stat);
 
 
 };
