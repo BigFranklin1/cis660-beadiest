@@ -110,7 +110,7 @@ MStatus ToHexNode::compute(const MPlug& plug, MDataBlock& data)
 	if (plug == outputMesh)
 	{
 		// input mesh
-		MObject inputHandle = inputMesh;
+		MDataHandle inputHandle = data.inputValue(inputMesh, &returnStatus);
 		McheckErr(returnStatus, "ERROR getting geometry data handle\n");
 		
 		// get time
@@ -138,13 +138,13 @@ MStatus ToHexNode::compute(const MPlug& plug, MDataBlock& data)
 		McheckErr(returnStatus, "ERROR getting geometry data handle\n");
 
 		MFnMeshData dataCreator;
-		MFnMeshData dataCreator2;
 
 		MObject newOutputData = dataCreator.create(&returnStatus);
 
 		McheckErr(returnStatus, "ERROR creating outputData");
 
-		createMesh(inputHandle, timeVal, angleVal, stepVal, gramVal, newOutputData, returnStatus);
+		MObject input = inputHandle.asMesh();
+		createMesh(input, timeVal, angleVal, stepVal, gramVal, newOutputData, returnStatus);
 		McheckErr(returnStatus, "ERROR creating mesh");
 
 		outputHandle.set(newOutputData);
@@ -157,10 +157,6 @@ MStatus ToHexNode::compute(const MPlug& plug, MDataBlock& data)
 
 MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& angle, const float &step, const MString& grammar, MObject& outData, MStatus& stat)
 {
-
-
-
-
 	//MStatus status;
 	MObject multiVertexComponent, singleVertexComponent;
 	MSelectionList sList;
@@ -168,10 +164,12 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 	MFnMesh meshFS;
 
 	// 
+	//MGlobal::displayInfo(str);
+
 	MGlobal::getActiveSelectionList(sList);
 	if (sList.length() == 0)
 	{
-		MGlobal::displayError("No mesh or mesh transform specified!");
+		MPxCommand::displayError("No mesh or mesh transform specified!");
 		stat = MS::kFailure;
 	}
 
@@ -180,10 +178,12 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 
 	// STORE THE MESH NAME
 	MString meshName = meshDagPath.fullPathName();
-	MGlobal::displayInfo("Selected Mesh Name: " + meshName);
-	MGlobal::displayInfo("convert to hex");
+
+	MPxCommand::displayInfo("Selected Mesh Name: " + meshName);
+	MPxCommand::displayInfo("convert to hex");
 
 	// create vertices list
+	
 	MItMeshVertex vertexIter(inMesh);
 	int id = 0;
 	std::vector<Vertex> vertices;//(vertexIter.count(&status));
@@ -262,76 +262,100 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 
 	//// ------------------ create new hex ------------------
 
-	//int numOfNewV = faces.size();
-	//const int numOfNewF = vertices.size();
+	int numOfNewV = faces.size();
+	const int numOfNewF = vertices.size();
 
-	//MFloatPointArray newPoints;
+	MFloatPointArray newPoints;
 
-	//int* face_counts = new int[numOfNewV];
+	//int face_counts[numOfNewV];
 
-	////std::vector<int> face_counts;
-	//int numOfFaceConnects = 0;
+	int* face_counts = new int[numOfNewV];
 
-	//int i = 0;
-	//for (Face f : faces) {
-	//	newPoints.append(f.centroid);
-	//	// the face count is dependent on  
-	//	face_counts[i] = f.edges.size();
-	//	numOfFaceConnects += face_counts[i];
-	//	i++;
-	//}
-	//int* face_connects = new int[numOfFaceConnects];
+	//std::vector<int> face_counts;
+	int numOfFaceConnects = 0;
 
-	//// assign face connected vertices
-	//int index = 0;
-	//for (; !faceIter.isDone(); faceIter.next()) {
-	//	MIntArray adjVertices;
-	//	faceIter.getConnectedVertices(adjVertices);
-	//	for (int v : adjVertices) {
-	//		face_connects[index] = v;
-	//		//vIndex++;
-	//		index++;
-	//	}
-	//}
+	int i = 0;
+	for (Face f : faces) {
+		newPoints.append(f.centroid);
+		// the face count is dependent on  
+		face_counts[i] = f.edges.size();
+		//face_counts.push_back(f.edges.size());
+		numOfFaceConnects += face_counts[i];
+		//numOfFaceConnects += face_counts.at(i);
+		i++;
+	}
 
-	//// Set up and array to assign vertices from points to each face
-	//MIntArray faceConnects(face_connects, numOfFaceConnects);
-	//MIntArray faceCounts(face_counts, numOfNewF);
+	int* face_connects = new int[numOfFaceConnects];
+	//std::vector<int> face_connects;
 
-	//MObject newMesh = meshFS.create(numOfNewV, numOfNewF, newPoints, faceCounts, faceConnects,outData, &stat);
+	// assign face connected vertices
+	int index = 0;
+	for (; !faceIter.isDone(); faceIter.next()) {
+		MIntArray adjVertices;
+		faceIter.getConnectedVertices(adjVertices);
+		for (int v : adjVertices) {
+			face_connects[index] = v;
+			//face_connects.push_back(v);
+			index++;
+		}
+	}
+	//----------------------Debug code -----------------------------
+	MString faceConnectsDebug;
+	faceConnectsDebug += double(sizeof(face_connects));
+	MGlobal::displayInfo("face connects: " + faceConnectsDebug + " expected: " + numOfFaceConnects);
+	//
+	MString faceCountsDebug;
+	faceCountsDebug += double(sizeof(face_counts));
+	MGlobal::displayInfo("face counts: " + faceCountsDebug + " expected: " + numOfNewV);
+	//
+	MString noNewFacesDebug;
+	noNewFacesDebug += double(numOfNewF);
+	MGlobal::displayInfo("new faces: " + noNewFacesDebug);
+	//
+	MString noNewVerticesDebug;
+	noNewVerticesDebug += double(numOfNewV);
+	MGlobal::displayInfo("new vertices: " + noNewVerticesDebug);
 
-	//return newMesh;
+
+
+	// Set up and array to assign vertices from points to each face
+	MIntArray faceConnects(face_connects, numOfFaceConnects);
+	MIntArray faceCounts(face_counts, numOfNewF);
+
+	MObject newMesh = meshFS.create(numOfNewV, numOfNewF, newPoints, faceCounts, faceConnects,outData, &stat);
+
+	return newMesh;
 
 
 	// --------------A cube for testing-----------------//
-	const int numFaces = 6;
-	int face_counts[numFaces] = { 4, 4, 4, 4, 4, 4 };
-	MIntArray faceCounts(face_counts, numFaces);
-	// Set up and array to assign vertices from points to each face 
-	//
-	const int numFaceConnects = 24;
-	int face_connects[numFaceConnects] = { 0, 1, 2, 3,
-											4, 5, 6, 7,
-											3, 2, 6, 5,
-											0, 3, 5, 4,
-											0, 4, 7, 1,
-											1, 7, 6, 2 };
-	MIntArray faceConnects(face_connects, numFaceConnects);
+	//const int numFaces = 6;
+	//int face_counts[numFaces] = { 4, 4, 4, 4, 4, 4 };
+	//MIntArray faceCounts(face_counts, numFaces);
+	//// Set up and array to assign vertices from points to each face 
+	////
+	//const int numFaceConnects = 24;
+	//int face_connects[numFaceConnects] = { 0, 1, 2, 3,
+	//										4, 5, 6, 7,
+	//										3, 2, 6, 5,
+	//										0, 3, 5, 4,
+	//										0, 4, 7, 1,
+	//										1, 7, 6, 2 };
+	//MIntArray faceConnects(face_connects, numFaceConnects);
 
 
 
-	MFloatPointArray points;
-	float cubeSize = 1;
-	points.append(-cubeSize, -cubeSize, -cubeSize);
-	points.append(cubeSize, -cubeSize, -cubeSize);
-	points.append(cubeSize, -cubeSize, cubeSize);
-	points.append(-cubeSize, -cubeSize, cubeSize);
-	points.append(-cubeSize, cubeSize, -cubeSize);
-	points.append(-cubeSize, cubeSize, cubeSize);
-	points.append(cubeSize, cubeSize, cubeSize);
-	points.append(cubeSize, cubeSize, -cubeSize);
+	//MFloatPointArray points;
+	//float cubeSize = 1;
+	//points.append(-cubeSize, -cubeSize, -cubeSize);
+	//points.append(cubeSize, -cubeSize, -cubeSize);
+	//points.append(cubeSize, -cubeSize, cubeSize);
+	//points.append(-cubeSize, -cubeSize, cubeSize);
+	//points.append(-cubeSize, cubeSize, -cubeSize);
+	//points.append(-cubeSize, cubeSize, cubeSize);
+	//points.append(cubeSize, cubeSize, cubeSize);
+	//points.append(cubeSize, cubeSize, -cubeSize);
 
-	//MFnMesh meshFS;
-	return meshFS.create(points.length(), faceCounts.length(),
-		points, faceCounts, faceConnects, outData, &stat);
+	////MFnMesh meshFS;
+	//return meshFS.create(points.length(), faceCounts.length(),
+	//	points, faceCounts, faceConnects, outData, &stat);
 }
