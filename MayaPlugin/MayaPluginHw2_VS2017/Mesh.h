@@ -15,6 +15,7 @@ public:
 	int id;
 	std::vector<int> adjacentEdges;
 	std::vector<int> adjacentVertices;
+	std::vector<int> adjacentFaces;
 
 };
 
@@ -35,4 +36,5 @@ public:
 	std::vector<int> edges;
 	std::vector<int> vertices;
 	MPoint centroid;
+	Vertex centV;
 };

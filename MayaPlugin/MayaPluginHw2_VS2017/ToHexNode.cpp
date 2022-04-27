@@ -197,6 +197,8 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 		vertexIter.getConnectedEdges(adjEdges);
 		MIntArray adjVertices;
 		vertexIter.getConnectedVertices(adjVertices);
+		MIntArray adjFaces;
+		vertexIter.getConnectedFaces(adjFaces);
 
 		MPoint centroid;
 		for (int i = 0; i < adjEdges.length(); i++) {
@@ -204,6 +206,9 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 		}
 		for (int i = 0; i < adjVertices.length(); i++) {
 			v.adjacentVertices.push_back(adjVertices[i]);
+		}
+		for (int i = 0; i < adjFaces.length(); i++) {
+			v.adjacentFaces.push_back(adjFaces[i]);
 		}
 		vertices.push_back(v);
 		id++;
@@ -267,6 +272,10 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 	}
 
 	//// ------------------ create new hex ------------------
+	MIntArray faceConnects;
+	MIntArray faceCounts;
+
+
 	int numOfNewV = faces.size();
 	int numOfNewF = vertices.size();
 
@@ -274,8 +283,8 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 
 	//int* face_counts = new int[numOfNewV];
 
-	std::vector<int> face_counts;
-	std::vector<int> face_connects;
+	//std::vector<int> face_counts;
+	//std::vector<int> face_connects;
 
 	int numOfFaceConnects = 0;
 
@@ -286,13 +295,18 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 	for (Vertex v : vertices) {
 		// the face count is dependent on  
 		//face_counts[oldVertexIndex] = v.adjacentVertices.size();
-		face_counts.push_back((int)v.adjacentVertices.size());
+		//face_counts.push_back((int)v.adjacentVertices.size());
+		faceCounts.append((int)v.adjacentVertices.size());
+		
 		//numOfFaceConnects += face_counts[oldVertexIndex];
-		numOfFaceConnects += face_counts.at(oldVertexIndex);
+		//numOfFaceConnects += face_counts.at(oldVertexIndex);
+		numOfFaceConnects += (int)v.adjacentVertices.size();
+
 		oldVertexIndex++;
 
-		for (auto adjV : v.adjacentVertices) {
-			face_connects.push_back(adjV);
+		for (auto adjF : v.adjacentFaces) {
+			//face_connects.push_back(adjV);
+			faceConnects.append(adjF);
 		}
 	}
 
@@ -304,29 +318,35 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 	//		x++;
 	//	}
 	//}
-	int* a = face_connects.data();
-	int* b = face_counts.data();
+	//int* a = face_connects.data();
+	//int* b = face_counts.data();
 
 	// Set up and array to assign vertices from points to each face
-	MIntArray faceConnects(a, numOfFaceConnects);
-	MIntArray faceCounts(b, numOfNewF);
+	//MIntArray faceConnects(a, numOfFaceConnects);
+	//MIntArray faceCounts(b, numOfNewF);
 
-	MObject newMesh = meshFS.create(numOfNewV, numOfNewF, newPoints, faceCounts, faceConnects,outData, &stat);
+	MObject newMesh = meshFS.create(numOfNewV, numOfNewF, newPoints, faceCounts, faceConnects, outData, &stat);
 
 
 	//----------------------Debug code -----------------------------
 
 	// 
 	MString faceCountsDebug;
-	faceCountsDebug += double(face_counts.size());
+	for (auto fc : faceCounts) {
+		faceCountsDebug += double(fc);
+		faceCountsDebug += " ";
+	}
 	MString faceCountsDebugArray;
-	faceCountsDebugArray += double(sizeof(b)/sizeof(b[0]));
+	faceCountsDebugArray += faceCounts.length();
 	MGlobal::displayInfo("face counts: " + faceCountsDebug + " Array Size: " + faceCountsDebugArray + " expected: " + vertices.size());
 	//
 	MString faceConnectsDebug;
-	faceConnectsDebug += double(face_connects.size());
+	for (auto fc : faceConnects) {
+		faceConnectsDebug += double(fc);
+		faceConnectsDebug += " ";
+	}
 	MString faceConnectsDebugArray;
-	faceConnectsDebugArray += double(sizeof(a) / sizeof(a[0]));
+	faceConnectsDebugArray += faceConnects.length();
 	MGlobal::displayInfo("face connects: " + faceConnectsDebug   + " Array Size: " + faceConnectsDebugArray + " expected: " + numOfFaceConnects);
 	//
 	MString noNewFacesDebug;
