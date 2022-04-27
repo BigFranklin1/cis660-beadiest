@@ -14,6 +14,8 @@ public:
 	MVector normal;
 	int id;
 	std::vector<int> adjacentEdges;
+	std::vector<int> adjacentVertices;
+
 };
 
 class Edge {
