@@ -1,3 +1,8 @@
+global proc meshReduction() {
+	expandPolyGroupSelection; polyCleanupArgList 4 { "0","1","1","0","0","0","0","0","0","1e-05","1","1e-05","0","1e-05","0","1","0","0" };
+	selectMode -o;
+	expandPolyGroupSelection; doPerformPolyReduceArgList 3 {"1","0","0","1","1","1","1","1","1","0.5","0.5","0.5","0.5","0.5","0.5","0","0.01","0","1","0","0.0","1","1","","1","1","50","0","0","1","0","0","0","0"};
+}
 
 global proc meshBeautification() {
     beautification;
@@ -19,6 +24,7 @@ global proc convert2HexNode() {
 
 global string $gMainWindow;
 menu -label "Beadiest" -parent $gMainWindow -tearOff on; 
+menuItem -label "Mesh Reduction" -command ("meshReduction");
 menuItem -label "Mesh Beautification" -command ("meshBeautification");
 menuItem -label "To Hex" -command ("convert2Hex");
 menuItem -label "To Hex Node" -command ("convert2HexNode");
