@@ -14,7 +14,9 @@ global proc convert2HexNode() {
 	string $obj[] = `ls -sl`;
 	$item = $obj[0];
 
-	createNode mesh -n newMesh;
+	instancer;
+   	connectAttr ($item+".matrix") instancer1.inputHierarchy[0]; 
+	createNode mesh -n newMesh ;
     	createNode ToHexNode;
 	sets -add initialShadingGroup newMesh;
 	connectAttr ($item+".outMesh") ToHexNode1.inputMesh;
