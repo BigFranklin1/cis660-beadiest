@@ -240,6 +240,22 @@ void buildSphere(
 
 }
 
+void buildSphere(MPoint p1, MPoint p2, MPointArray& vertices,
+	MIntArray& counts,
+	MIntArray& connects,
+	MVectorArray& normals) {
+	double rad = p1.distanceTo(p2) / 2;
+	MPoint center = (p1 + p2) / 2;
+	rad = 0.1;
+	buildSphere(rad,
+		4,
+		center,
+		vertices,
+		counts,
+		connects,
+		normals
+	);
+}
 
 MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& angle, const float &step, const MString& grammar, MObject& outData, MStatus& stat)
 {
@@ -416,7 +432,7 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 	MPointArray points1;
 	MIntArray faceCounts1, faceConnects1;
 	MVectorArray normals1;
-	for (int i = 1; i < 3; i++) {
+	/*for (int i = 1; i < 3; i++) {
 		MPoint p(5, 5, 5);
 		p = p * i;
 		buildSphere(i,
@@ -435,7 +451,31 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 		faceConnectstr += faceConnects1.length();
 		MGlobal::displayInfo(pointstr + " " + faceCountstr + " " + faceConnectstr);
 
+	}*/
+	for (Vertex v : vertices) {
+		std::vector<int> idx = v.adjacentFaces;
+		for (int i = 0; i < idx.size() - 1; i++) {
+			buildSphere(newPoints[idx[i]], newPoints[idx[i + 1]],
+				points1,
+				faceCounts1,
+				faceConnects1,
+				normals1);
+		}
+		buildSphere(newPoints[idx[idx.size() - 1]], newPoints[idx[0]],
+			points1,
+			faceCounts1,
+			faceConnects1,
+			normals1);
 	}
+
+	/*for (MPoint p : newPoints) {
+		buildSphere(0.1, 4,
+			p,
+			points1,
+			faceCounts1,
+			faceConnects1,
+			normals1);
+	}*/
 	MObject newMesh = meshFS.create(points1.length(), faceCounts1.length(), points1, faceCounts1, faceConnects1, outData, &stat);
 
 
