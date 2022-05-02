@@ -394,8 +394,9 @@
     <ClCompile Include="LSystem.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshBeautification.cpp" />
+    <ClCompile Include="spheres.cpp" />
     <ClCompile Include="ToHexCmd.cpp" />
-    <ClCompile Include="LSystemNode.cpp" />
+    <ClCompile Include="ToHexNode.cpp" />
     <ClCompile Include="PluginMain.cpp" />
     <ClCompile Include="vec.cpp" />
   </ItemGroup>
@@ -404,6 +405,7 @@
     <ClInclude Include="LSystem.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshBeautification.h" />
+    <ClInclude Include="spheres.h" />
     <ClInclude Include="ToHexCmd.h" />
     <ClInclude Include="LSystemNode.h" />
     <ClInclude Include="matrix.h" />

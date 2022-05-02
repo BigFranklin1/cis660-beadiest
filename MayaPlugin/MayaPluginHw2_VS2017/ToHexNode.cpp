@@ -155,6 +155,92 @@ MStatus ToHexNode::compute(const MPlug& plug, MDataBlock& data)
 	return MS::kSuccess;
 }
 
+void buildSphere(
+	double                          rad,
+	int                                     div,
+	MPoint center,
+	MPointArray& vertices,
+	MIntArray& counts,
+	MIntArray& connects,
+	MVectorArray& normals)
+//
+// Description
+//
+//    Create circles of vertices starting with 
+//    the top pole ending with the botton pole
+//
+{
+	int start = vertices.length();
+
+	double u = -M_PI_2;
+	double v = -M_PI;
+	double u_delta = M_PI / ((double)div);
+	double v_delta = 2 * M_PI / ((double)div);
+
+	MPoint topPole(0.0, rad, 0.0);
+	MPoint botPole(0.0, -rad, 0.0);
+	topPole += center;
+	botPole += center;
+
+	// Build the vertex and normal table
+	//
+	vertices.append(botPole);
+	normals.append(botPole - MPoint::origin);
+	int i;
+	for (i = 0; i < (div - 1); i++)
+	{
+		u += u_delta;
+		v = -M_PI;
+
+		for (int j = 0; j < div; j++)
+		{
+			double x = rad * cos(u) * cos(v) + center[0];
+			double y = rad * sin(u) + center[1];
+			double z = rad * cos(u) * sin(v) + center[2];
+			MPoint pnt(x, y, z);
+			vertices.append(pnt);
+			normals.append(pnt - MPoint::origin);
+			v += v_delta;
+		}
+	}
+	vertices.append(topPole);
+	normals.append(topPole - MPoint::origin);
+
+	// Create the connectivity lists
+	//
+	int vid = 1;
+	int numV = 0;
+	for (i = 0; i < div; i++)
+	{
+		for (int j = 0; j < div; j++)
+		{
+			if (i == 0) {
+				counts.append(3);
+				connects.append(start + 0);
+				connects.append(start + j + vid);
+				connects.append((j == (div - 1)) ? vid + start: j + vid + 1 + start);
+			}
+			else if (i == (div - 1)) {
+				counts.append(3);
+				connects.append(start + j + vid + 1 - div);
+				connects.append(start + vid + 1);
+				connects.append(j == (div - 1) ? start + vid + 1 - div : start + j + vid + 2 - div);
+			}
+			else {
+				counts.append(4);
+				connects.append(start + j + vid + 1 - div);
+				connects.append(start + j + vid + 1);
+				connects.append(j == (div - 1) ? start + vid + 1 : start + j + vid + 2);
+				connects.append(j == (div - 1) ? start + vid + 1 - div : start + j + vid + 2 - div);
+			}
+			numV++;
+		}
+		vid = numV;
+	}
+
+}
+
+
 MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& angle, const float &step, const MString& grammar, MObject& outData, MStatus& stat)
 {
 	//MStatus status;
@@ -325,13 +411,38 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 	//MIntArray faceConnects(a, numOfFaceConnects);
 	//MIntArray faceCounts(b, numOfNewF);
 
-	MObject newMesh = meshFS.create(numOfNewV, numOfNewF, newPoints, faceCounts, faceConnects, outData, &stat);
+	//MObject newMesh = meshFS.create(numOfNewV, numOfNewF, newPoints, faceCounts, faceConnects, outData, &stat);
+
+	MPointArray points1;
+	MIntArray faceCounts1, faceConnects1;
+	MVectorArray normals1;
+	for (int i = 1; i < 3; i++) {
+		MPoint p(5, 5, 5);
+		p = p * i;
+		buildSphere(i,
+			4,
+			p,
+			points1,
+			faceCounts1,
+			faceConnects1,
+			normals1
+		);
+		MString pointstr = "points: ";
+		pointstr += points1.length();
+		MString faceCountstr = "faceCounts: ";
+		faceCountstr += faceCounts1.length();
+		MString faceConnectstr = "faceConnects: ";
+		faceConnectstr += faceConnects1.length();
+		MGlobal::displayInfo(pointstr + " " + faceCountstr + " " + faceConnectstr);
+
+	}
+	MObject newMesh = meshFS.create(points1.length(), faceCounts1.length(), points1, faceCounts1, faceConnects1, outData, &stat);
 
 
 	//----------------------Debug code -----------------------------
 
 	// 
-	MString faceCountsDebug;
+	/*MString faceCountsDebug;
 	for (auto fc : faceCounts) {
 		faceCountsDebug += double(fc);
 		faceCountsDebug += " ";
@@ -355,7 +466,7 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 	//
 	MString noNewVerticesDebug;
 	noNewVerticesDebug += double(numOfNewV);
-	MGlobal::displayInfo("new vertices: " + noNewVerticesDebug);
+	MGlobal::displayInfo("new vertices: " + noNewVerticesDebug);*/
 
 
 	//delete [] face_counts;

@@ -16,11 +16,12 @@ global proc convert2HexNode() {
 
 	instancer;
    	connectAttr ($item+".matrix") instancer1.inputHierarchy[0]; 
-	createNode mesh -n newMesh ;
-    	createNode ToHexNode;
-	sets -add initialShadingGroup newMesh;
-	connectAttr ($item+".outMesh") ToHexNode1.inputMesh;
-	connectAttr ToHexNode1.outputMesh newMesh.inMesh;
+	//$mesh = createNode mesh -n newMesh ;
+	$mesh = `createNode mesh`;
+    $hexNode = `createNode ToHexNode`;
+	sets -add initialShadingGroup $mesh;
+	connectAttr ($item+".outMesh") ($hexNode + ".inputMesh");
+	connectAttr ($hexNode + ".outputMesh") ($mesh+".inMesh");
 }
 
 
