@@ -155,108 +155,6 @@ MStatus ToHexNode::compute(const MPlug& plug, MDataBlock& data)
 	return MS::kSuccess;
 }
 
-void buildSphere(
-	double                          rad,
-	int                                     div,
-	MPoint center,
-	MPointArray& vertices,
-	MIntArray& counts,
-	MIntArray& connects,
-	MVectorArray& normals)
-//
-// Description
-//
-//    Create circles of vertices starting with 
-//    the top pole ending with the botton pole
-//
-{
-	int start = vertices.length();
-
-	double u = -M_PI_2;
-	double v = -M_PI;
-	double u_delta = M_PI / ((double)div);
-	double v_delta = 2 * M_PI / ((double)div);
-
-	MPoint topPole(0.0, rad, 0.0);
-	MPoint botPole(0.0, -rad, 0.0);
-	topPole += center;
-	botPole += center;
-
-	// Build the vertex and normal table
-	//
-	vertices.append(botPole);
-	normals.append(botPole - MPoint::origin);
-	int i;
-	for (i = 0; i < (div - 1); i++)
-	{
-		u += u_delta;
-		v = -M_PI;
-
-		for (int j = 0; j < div; j++)
-		{
-			double x = rad * cos(u) * cos(v) + center[0];
-			double y = rad * sin(u) + center[1];
-			double z = rad * cos(u) * sin(v) + center[2];
-			MPoint pnt(x, y, z);
-			vertices.append(pnt);
-			normals.append(pnt - MPoint::origin);
-			v += v_delta;
-		}
-	}
-	vertices.append(topPole);
-	normals.append(topPole - MPoint::origin);
-
-	// Create the connectivity lists
-	//
-	int vid = 1;
-	int numV = 0;
-	for (i = 0; i < div; i++)
-	{
-		for (int j = 0; j < div; j++)
-		{
-			if (i == 0) {
-				counts.append(3);
-				connects.append(start + 0);
-				connects.append(start + j + vid);
-				connects.append((j == (div - 1)) ? vid + start: j + vid + 1 + start);
-			}
-			else if (i == (div - 1)) {
-				counts.append(3);
-				connects.append(start + j + vid + 1 - div);
-				connects.append(start + vid + 1);
-				connects.append(j == (div - 1) ? start + vid + 1 - div : start + j + vid + 2 - div);
-			}
-			else {
-				counts.append(4);
-				connects.append(start + j + vid + 1 - div);
-				connects.append(start + j + vid + 1);
-				connects.append(j == (div - 1) ? start + vid + 1 : start + j + vid + 2);
-				connects.append(j == (div - 1) ? start + vid + 1 - div : start + j + vid + 2 - div);
-			}
-			numV++;
-		}
-		vid = numV;
-	}
-
-}
-
-void buildSphere(MPoint p1, MPoint p2, MPointArray& vertices,
-	MIntArray& counts,
-	MIntArray& connects,
-	MVectorArray& normals) {
-	double rad = p1.distanceTo(p2) / 2;
-	MPoint center = (p1 + p2) / 2;
-	rad = 0.1;
-	buildSphere(rad,
-		4,
-		center,
-		vertices,
-		counts,
-		connects,
-		normals
-	);
-}
-
 MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& angle, const float &step, const MString& grammar, MObject& outData, MStatus& stat)
 {
 	//MStatus status;
@@ -359,7 +257,7 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 		f.centroid.y /= adjVertices.length();
 		f.centroid.z /= adjVertices.length();
 		f.centroid.w /= adjVertices.length();
-		MString str;
+		/*MString str;
 		str += (double)f.centroid.x;
 		str += ",";
 		str += (double)f.centroid.y;
@@ -368,7 +266,7 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 
 
 
-		MGlobal::displayInfo(str);
+		MGlobal::displayInfo(str);*/
 		faces.push_back(f);
 		id++;
 	}
@@ -427,8 +325,11 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 	//MIntArray faceConnects(a, numOfFaceConnects);
 	//MIntArray faceCounts(b, numOfNewF);
 
-	//MObject newMesh = meshFS.create(numOfNewV, numOfNewF, newPoints, faceCounts, faceConnects, outData, &stat);
-
+	MObject hex;
+	MObject newMesh = meshFS.create(numOfNewV, numOfNewF, newPoints, faceCounts, faceConnects, outData, &stat);
+	//MFnMesh hexMesh = meshFS;
+	MPointArray hexPoints;
+	meshFS.getPoints(hexPoints, MSpace::kWorld);
 	MPointArray points1;
 	MIntArray faceCounts1, faceConnects1;
 	MVectorArray normals1;
@@ -452,7 +353,7 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 		MGlobal::displayInfo(pointstr + " " + faceCountstr + " " + faceConnectstr);
 
 	}*/
-	for (Vertex v : vertices) {
+	/*for (Vertex v : vertices) {
 		std::vector<int> idx = v.adjacentFaces;
 		for (int i = 0; i < idx.size() - 1; i++) {
 			buildSphere(newPoints[idx[i]], newPoints[idx[i + 1]],
@@ -466,7 +367,7 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 			faceCounts1,
 			faceConnects1,
 			normals1);
-	}
+	}*/
 
 	/*for (MPoint p : newPoints) {
 		buildSphere(0.1, 4,
@@ -476,7 +377,8 @@ MObject ToHexNode::createMesh(MObject& inMesh, const MTime& time, const float& a
 			faceConnects1,
 			normals1);
 	}*/
-	MObject newMesh = meshFS.create(points1.length(), faceCounts1.length(), points1, faceCounts1, faceConnects1, outData, &stat);
+
+//	MObject newMesh = meshFS.create(points1.length(), faceCounts1.length(), points1, faceCounts1, faceConnects1, outData, &stat);
 
 
 	//----------------------Debug code -----------------------------

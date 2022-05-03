@@ -14,11 +14,25 @@ global proc convert2HexNode() {
 	string $obj[] = `ls -sl`;
 	$item = $obj[0];
 
-	instancer;
-   	connectAttr ($item+".matrix") instancer1.inputHierarchy[0]; 
+	$instancer = `instancer`;
+   	connectAttr ($item+".matrix") ($instancer + ".inputHierarchy[0]"); 
 	//$mesh = createNode mesh -n newMesh ;
 	$mesh = `createNode mesh`;
     $hexNode = `createNode ToHexNode`;
+	sets -add initialShadingGroup $mesh;
+	connectAttr ($item+".outMesh") ($hexNode + ".inputMesh");
+	connectAttr ($hexNode + ".outputMesh") ($mesh+".inMesh");
+}
+
+global proc toBead() {
+	string $obj[] = `ls -sl`;
+	$item = $obj[0];
+
+	$instancer = `instancer`;
+   	connectAttr ($item+".matrix") ($instancer + ".inputHierarchy[0]"); 
+	//$mesh = createNode mesh -n newMesh ;
+	$mesh = `createNode mesh`;
+    $hexNode = `createNode ToBeadNode`;
 	sets -add initialShadingGroup $mesh;
 	connectAttr ($item+".outMesh") ($hexNode + ".inputMesh");
 	connectAttr ($hexNode + ".outputMesh") ($mesh+".inMesh");
@@ -31,3 +45,4 @@ menuItem -label "Mesh Reduction" -command ("meshReduction");
 menuItem -label "Mesh Beautification" -command ("meshBeautification");
 menuItem -label "To Hex" -command ("convert2Hex");
 menuItem -label "To Hex Node" -command ("convert2HexNode");
+menuItem -label "To Bead Node" -command ("toBead");

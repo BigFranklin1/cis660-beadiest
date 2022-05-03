@@ -29,7 +29,7 @@
     </ClCompile>
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshBeautification.cpp" />
-    <ClCompile Include="spheres.cpp" />
+    <ClCompile Include="BeadNode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cylinder.h">
@@ -44,7 +44,7 @@
     <ClInclude Include="vec.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="LSystemNode.h">
+    <ClInclude Include="ToHexNode.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ToHexCmd.h">
@@ -52,6 +52,6 @@
     </ClInclude>
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshBeautification.h" />
-    <ClInclude Include="spheres.h" />
+    <ClInclude Include="BeadNode.h" />
   </ItemGroup>
 </Project>

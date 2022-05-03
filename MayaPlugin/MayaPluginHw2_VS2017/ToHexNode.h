@@ -6,8 +6,6 @@
 #include <string.h>
 
 #include <maya/MPxCommand.h>
-
-#include <maya/MFnPlugin.h>
 #include <maya/MTime.h>
 #include <maya/MFnMesh.h>
 #include <maya/MPoint.h>
@@ -25,7 +23,6 @@
 #include <maya/MItMeshEdge.h>
 #include <maya/MGlobal.h>
 
-#include <maya/MFnPlugin.h>
 #include <maya/MTime.h>
 #include <maya/MFnMesh.h>
 #include <maya/MPoint.h>

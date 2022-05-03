@@ -21,7 +21,7 @@
 #include "MeshBeautification.h"
 #include "ToHexCmd.h"
 #include "ToHexNode.h"
-
+#include "BeadNode.h"
 
 MStatus initializePlugin(MObject obj)
 {
@@ -51,6 +51,14 @@ MStatus initializePlugin(MObject obj)
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 	}
 
+	status = plugin.registerNode("ToBeadNode", BeadNode::id, BeadNode::creator, BeadNode::initialize);
+	if (!status) {
+		status.perror("registerNode toBeadNode");
+
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+	}
+
+
 	char buffer[2048];
 	std::string s = plugin.loadPath().asChar();
 	sprintf_s(buffer, 2048, "source \"%s/Beadiest\";", plugin.loadPath().asChar());
@@ -77,6 +85,11 @@ MStatus uninitializePlugin(MObject obj)
 	}
 
 	status = plugin.deregisterNode(ToHexNode::id);
+	if (!status) {
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+	}
+
+	status = plugin.deregisterNode(BeadNode::id);
 	if (!status) {
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 	}
