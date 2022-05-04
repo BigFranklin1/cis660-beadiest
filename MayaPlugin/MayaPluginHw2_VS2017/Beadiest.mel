@@ -28,7 +28,6 @@ global proc convert2HexNode() {
 	sets -add initialShadingGroup $mesh;
 	connectAttr ($item+".outMesh") ($hexNode + ".inputMesh");
 	connectAttr ($hexNode + ".outputMesh") ($mesh+".inMesh");
-	select $mesh;
 }
 
 global proc hex2Bead() {
