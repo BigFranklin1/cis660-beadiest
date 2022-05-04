@@ -4,9 +4,7 @@
 
 MObject BeadNode::time;
 MTypeId BeadNode::id(0x80001);
-MObject BeadNode::angle;
-MObject BeadNode::step_size;
-MObject BeadNode::grammarFile;
+MObject BeadNode::beadDiv;
 MObject BeadNode::outputMesh;
 MObject BeadNode::inputMesh;
 
@@ -35,30 +33,14 @@ MStatus BeadNode::initialize()
 	McheckErr(returnStatus, "ERROR creating ToHexNode time attribute\n");
 
 	// angle
-	BeadNode::angle = numAttr.MFnNumericAttribute::create("angle",
-		"a",
-		MFnNumericData::kDouble,
-		0.0,
+	BeadNode::beadDiv = numAttr.MFnNumericAttribute::create("beadDiv",
+		"bd",
+		MFnNumericData::kInt,
+		4,
 		&returnStatus
 	);
+	
 	McheckErr(returnStatus, "ERROR creating ToHexNode angle attribute\n");
-
-	// step size
-	BeadNode::step_size = numAttr.MFnNumericAttribute::create("step",
-		"ss",
-		MFnNumericData::kDouble,
-		0.0,
-		&returnStatus
-	);
-	McheckErr(returnStatus, "ERROR creating ToHexNode step attribute\n");
-
-	// grammar
-	BeadNode::grammarFile = typedAttr.MFnTypedAttribute::create("grammar",
-		"g",
-		MFnData::kString,
-		&returnStatus
-	);
-	McheckErr(returnStatus, "ERROR creating ToHexNode grammar attribute\n");
 
 
 	// output
@@ -75,22 +57,14 @@ MStatus BeadNode::initialize()
 	McheckErr(returnStatus, "ERROR add input\n");
 	returnStatus = addAttribute(BeadNode::time);
 	McheckErr(returnStatus, "ERROR add time\n");
-	returnStatus = addAttribute(BeadNode::angle);
+	returnStatus = addAttribute(BeadNode::beadDiv);
 	McheckErr(returnStatus, "ERROR add angle\n");
-	returnStatus = addAttribute(BeadNode::step_size);
-	McheckErr(returnStatus, "ERROR add step\n");
-	returnStatus = addAttribute(BeadNode::grammarFile);
-	McheckErr(returnStatus, "ERROR add grammar\n");
 	returnStatus = addAttribute(BeadNode::outputMesh);
 	McheckErr(returnStatus, "ERROR add output\n");
 	returnStatus = attributeAffects(BeadNode::inputMesh, BeadNode::outputMesh);
 	McheckErr(returnStatus, "ERROR in attributeAffects input mesh\n");
-	returnStatus = attributeAffects(BeadNode::grammarFile, BeadNode::outputMesh);
-	McheckErr(returnStatus, "ERROR in attributeAffects grammar\n");
-	returnStatus = attributeAffects(BeadNode::angle, BeadNode::outputMesh);
+	returnStatus = attributeAffects(BeadNode::beadDiv, BeadNode::outputMesh);
 	McheckErr(returnStatus, "ERROR in attributeAffects angle\n");
-	returnStatus = attributeAffects(BeadNode::step_size, BeadNode::outputMesh);
-	McheckErr(returnStatus, "ERROR in attributeAffects step size\n");
 	returnStatus = attributeAffects(BeadNode::time, BeadNode::outputMesh);
 	McheckErr(returnStatus, "ERROR in attributeAffects time\n");
 
@@ -118,20 +92,15 @@ MStatus BeadNode::compute(const MPlug& plug, MDataBlock& data)
 		MTime timeVal = timeData.asTime();
 
 		// get angle
-		MDataHandle angleData = data.inputValue(angle, &returnStatus);
+		MDataHandle angleData = data.inputValue(beadDiv, &returnStatus);
 		McheckErr(returnStatus, "Error getting angle data handle\n");
-		double angleVal = angleData.asDouble();
+		int divVal = angleData.asInt();
+		MString str = "div: ";
+		str += divVal;
 
-		// get step size
-		MDataHandle stepData = data.inputValue(step_size, &returnStatus);
-		McheckErr(returnStatus, "Error getting step data handle\n");
-		double stepVal = stepData.asDouble();
 
-		// get grammar
-		MDataHandle grammarData = data.inputValue(grammarFile, &returnStatus);
-		McheckErr(returnStatus, "Error getting gramnar data handle\n");
-		MString gramVal = grammarData.asString();
 
+		MGlobal::displayInfo(str);
 		// get output object
 		MDataHandle outputHandle = data.outputValue(outputMesh, &returnStatus);
 		McheckErr(returnStatus, "ERROR getting geometry data handle\n");
@@ -143,7 +112,7 @@ MStatus BeadNode::compute(const MPlug& plug, MDataBlock& data)
 		McheckErr(returnStatus, "ERROR creating outputData");
 
 		MObject input = inputHandle.asMesh();
-		createMesh(input, timeVal, angleVal, stepVal, gramVal, newOutputData, returnStatus);
+		createMesh(input, timeVal, divVal, newOutputData, returnStatus);
 		McheckErr(returnStatus, "ERROR creating mesh");
 
 		outputHandle.set(newOutputData);
@@ -239,14 +208,17 @@ void buildSphere(
 
 }
 
-void buildSphere(MPoint p1, MPoint p2, MPointArray& vertices,
+void buildSphere(MPoint p1, MPoint p2, int divVal, MPointArray& vertices,
 	MIntArray& counts,
 	MIntArray& connects,
 	MVectorArray& normals) {
 	double rad = p1.distanceTo(p2) / 2;
+	if (rad < 1) {
+	//	return;
+	}
 	MPoint center = (p1 + p2) / 2;
 	buildSphere(rad,
-		4,
+		divVal,
 		center,
 		vertices,
 		counts,
@@ -255,7 +227,7 @@ void buildSphere(MPoint p1, MPoint p2, MPointArray& vertices,
 	);
 }
 
-MObject BeadNode::createMesh(MObject& inMesh, const MTime& time, const float& angle, const float& step, const MString& grammar, MObject& outData, MStatus& stat)
+MObject BeadNode::createMesh(MObject& inMesh, const MTime& time, const int& divVal,  MObject& outData, MStatus& stat)
 {
 	//MStatus status;
 	MObject multiVertexComponent, singleVertexComponent;
@@ -280,7 +252,7 @@ MObject BeadNode::createMesh(MObject& inMesh, const MTime& time, const float& an
 	MString meshName = meshDagPath.fullPathName();
 
 	MPxCommand::displayInfo("Selected Mesh Name: " + meshName);
-	MPxCommand::displayInfo("convert to hex");
+	MPxCommand::displayInfo("convert to bead");
 
 	// create vertices list
 
@@ -331,7 +303,7 @@ MObject BeadNode::createMesh(MObject& inMesh, const MTime& time, const float& an
 	MIntArray faceCounts1, faceConnects1;
 	MVectorArray normals1;
 	for (Edge e : edges) {
-		buildSphere(vertices[e.v1Id].position, vertices[e.v2Id].position,
+		buildSphere(vertices[e.v1Id].position, vertices[e.v2Id].position, divVal,
 			points1,
 			faceCounts1,
 			faceConnects1,

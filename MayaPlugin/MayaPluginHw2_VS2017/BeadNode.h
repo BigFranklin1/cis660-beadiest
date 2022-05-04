@@ -19,15 +19,13 @@ public:
 	static MStatus initialize();
 
 	static MTypeId id;
+	static MObject beadDiv;
 	static MObject time;
-	static MObject angle;
-	static MObject step_size;
-	static MObject grammarFile;
 	static MObject outputMesh;
 	static MObject inputMesh;
 
 protected:
-	MObject createMesh(MObject& inMesh, const MTime& time, const float& angle, const float& step, const MString& grammar, MObject& outData, MStatus& stat);
+	MObject createMesh(MObject& inMesh, const MTime& time, const int& div, MObject& outData, MStatus& stat);
 
 
 };

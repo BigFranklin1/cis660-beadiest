@@ -52,16 +52,7 @@ MStatus MeshBeautification::beautification() {
 		v.id = id;//vertexIter.index(&status);
 		v.position = vertexIter.position(MSpace::kWorld, &status);
 		vertexIter.getNormal(v.normal, MSpace::kWorld);
-		MString str;
-		str += (double)v.normal.x;
-		str += ",";
-		str += (double)v.normal.y;
-		str += ",";
-		str += (double)v.normal.z;
-
-
-
-		MGlobal::displayInfo(str);
+		
 		MIntArray adjEdges;
 		vertexIter.getConnectedEdges(adjEdges);
 		MPoint centroid;
@@ -109,7 +100,7 @@ MStatus MeshBeautification::beautification() {
 		double beta = 0.4;
 		double gamma = 1 - alpha - beta;
 		distance = distance > 1 ? 1 : distance;
-		MPoint newPos = alpha * ori + beta * centroid + (ori + gamma * vertices[id].normal * distance);
+		MPoint newPos = alpha * ori + beta * centroid + gamma * (ori + vertices[id].normal * distance);
 		vertexIter.setPosition(newPos, MSpace::kWorld);
 		id++;
 	}

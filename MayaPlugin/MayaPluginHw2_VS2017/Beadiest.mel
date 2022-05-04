@@ -1,12 +1,18 @@
 global proc meshReduction() {
-	expandPolyGroupSelection; polyCleanupArgList 4 { "0","1","1","0","0","0","0","0","0","1e-05","1","1e-05","0","1e-05","0","1","0","0" };
+	//expandPolyGroupSelection; 
+	polyCleanupArgList 4 { "0","1","1","0","0","0","0","0","0","1e-05","1","1e-05","0","1e-05","0","1","0","0" };
 	selectMode -o;
-	expandPolyGroupSelection; doPerformPolyReduceArgList 3 {"1","0","0","1","1","1","1","1","1","0.5","0.5","0.5","0.5","0.5","0.5","0","0.01","0","1","0","0.0","1","1","","1","1","50","0","0","1","0","0","0","0"};
+	doPerformPolyReduceArgList 3 {"1","0","0","1","1","1","1","1","1","0.5","0.5","0.5","0.5","0.5","0.5","0","0.01","0","1","0","0.0","1","1","","1","1","50","0","0","1","0","0","0","0"};
 }
 
 global proc meshBeautification() {
     beautification;
+	string $obj[] = `ls -sl`;
+	$item = $obj[0];
+	polyAverageVertex -i 50 -ch 1 $item;
+	selectMode -o;
 }
+
 global proc convert2Hex() {
     toHex;
 }
@@ -22,9 +28,10 @@ global proc convert2HexNode() {
 	sets -add initialShadingGroup $mesh;
 	connectAttr ($item+".outMesh") ($hexNode + ".inputMesh");
 	connectAttr ($hexNode + ".outputMesh") ($mesh+".inMesh");
+	select $mesh;
 }
 
-global proc toBead() {
+global proc hex2Bead() {
 	string $obj[] = `ls -sl`;
 	$item = $obj[0];
 
@@ -36,6 +43,7 @@ global proc toBead() {
 	sets -add initialShadingGroup $mesh;
 	connectAttr ($item+".outMesh") ($hexNode + ".inputMesh");
 	connectAttr ($hexNode + ".outputMesh") ($mesh+".inMesh");
+	select $mesh;
 }
 
 
@@ -43,6 +51,6 @@ global string $gMainWindow;
 menu -label "Beadiest" -parent $gMainWindow -tearOff on; 
 menuItem -label "Mesh Reduction" -command ("meshReduction");
 menuItem -label "Mesh Beautification" -command ("meshBeautification");
-menuItem -label "To Hex" -command ("convert2Hex");
-menuItem -label "To Hex Node" -command ("convert2HexNode");
-menuItem -label "To Bead Node" -command ("toBead");
+//menuItem -label "To Hex" -command ("convert2Hex");
+menuItem -label "Tri To Hex Node" -command ("convert2HexNode");
+menuItem -label "Hex To Bead Node" -command ("hex2Bead");
